@@ -11,6 +11,7 @@
 # WORKDIR
 
 
+# Stage 1: Build the Go application
 FROM golang:1.18 as builder
 
 WORKDIR /app
@@ -22,16 +23,23 @@ RUN go mod tidy
 
 RUN go build -o main main.go
 
+# Stage 2: Create a smaller final image to run the application
 FROM ubuntu:18.04
 
-<Please fill in the required Docker command> --from=builder /app/main /app/guestbook
+# Copy the compiled Go binary from the builder stage
+COPY --from=builder /app/main /app/guestbook
 
-<Please fill in the required Docker command> public/index.html /app/public/index.html
-<Please fill in the required Docker command> public/script.js /app/public/script.js
-<Please fill in the required Docker command> public/style.css /app/public/style.css
-<Please fill in the required Docker command> public/jquery.min.js /app/public/jquery.min.js
+# Copy static files like HTML, CSS, and JavaScript to the /app/public directory
+COPY public/index.html /app/public/index.html
+COPY public/script.js /app/public/script.js
+COPY public/style.css /app/public/style.css
+COPY public/jquery.min.js /app/public/jquery.min.js
 
+# Set the working directory to /app
 WORKDIR /app
 
+# Expose port 3000 on the container to allow access to the Guestbook app
+EXPOSE 3000
+
+# Define the command to run the application when the container starts
 CMD ["./guestbook"]
-<Please fill in the required Docker command> 3000
